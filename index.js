@@ -186,7 +186,7 @@ else if (msg.content.startsWith("-ai")) {
         { role: "system", content: "You are a funny but helpful Discord bot for people in their mid 20s. Keep all responses under 1500 characters." },
         { role: "user", content: prompt }
       ],
-      temperature: 0.7
+      temperature: 1.2
     })
 
     const reply = completion.choices[0].message.content
@@ -256,6 +256,7 @@ else if (msg.content.startsWith("-ai")) {
 const token = process.env['token']
 //console.log(token)
 client.login(token);
+
 
 
 
