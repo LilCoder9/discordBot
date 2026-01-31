@@ -147,7 +147,7 @@ client.on("messageCreate", async (msg) => {
   }
   else if (msg.content === `${prefix}help`) {//-help sends a mesage of the commands it can be used
 
-    msg.reply("```**Bot Commands:** \n\n -thieves: this command will make bot send link 100T\n\n -youtube: this command will make bot send link 100T Main Youtube Channel\n\n -lcs: this command will make bot send link to the LCS stream; where you can see 100T lose!!\n\n -translate [text]:Translates text to other languagess\n\n pong: if you feel bored and want to play with yourself \n\n Sends Daily Wordle Links and Youtube Notification of Fireship :) ```")
+    msg.reply("```**Bot Commands:** \n\n -thieves: this command will make bot send link 100T\n\n -youtube: this command will make bot send link 100T Main Youtube Channel\n\n -lcs: this command will make bot send link to the LCS stream; where you can see 100T lose!!\n\n -translate [text]:Translates text to other languagess\n\n -ai [question]: Ask the AI anything\n\n pong: if you feel bored and want to play with yourself \n\n Sends Daily Wordle Links and Youtube Notification of Fireship :) ```")
 
   }
 else if (msg.content.startsWith("-translate")) { // translate English to various languages
@@ -256,3 +256,4 @@ else if (msg.content.startsWith("-ai")) {
 const token = process.env['token']
 //console.log(token)
 client.login(token);
+
