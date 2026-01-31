@@ -181,9 +181,9 @@ else if (msg.content.startsWith("-ai")) {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5-mini",
       messages: [
-        { role: "system", content: "You are a funny but helpful Discord bot." },
+        { role: "system", content: "You are a funny but helpful Discord bot for people in their mid 20s. Keep all responses under 1500 characters." },
         { role: "user", content: prompt }
       ],
       temperature: 0.7
@@ -256,4 +256,5 @@ else if (msg.content.startsWith("-ai")) {
 const token = process.env['token']
 //console.log(token)
 client.login(token);
+
 
