@@ -27,6 +27,11 @@ const translate = new Translate({
   projectId: "discordtransalation"
 });
 
+const OpenAI = require("openai")
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+})
 
 //videoSend is an Youtube API that send nofiticaiton to #coding-room
 //whenever there is a new video checks youtbe channel every 2 minutes
@@ -169,6 +174,27 @@ else if (msg.content.startsWith("-translate")) { // translate English to various
         console.error("Translation error:", err.message);
         msg.reply("Translation temporarily unavailable. Please try again later.");
     }
+}
+else if (msg.content.startsWith("-ai")) {
+  const prompt = msg.content.slice(3).trim()
+  if (!prompt) return msg.reply("Ask me something after -ai")
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a funny but helpful Discord bot." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7
+    })
+
+    const reply = completion.choices[0].message.content
+    msg.reply(reply)
+  } catch (err) {
+    console.error(err)
+    msg.reply("AI is currently unavailable.")
+  }
 }
 
   else if (msg.content === "-test") {//sends a message to an specific channel if -test is sent in the server
