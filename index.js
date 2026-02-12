@@ -128,18 +128,26 @@ async function searchWeb(query) {
       params: {
         engine: "google",
         q: query,
+        google_domain: "google.com",
+        gl: "us",
+        hl: "en",
         api_key: process.env.SERPAPI_KEY
       }
     });
 
-    const results = res.data.organic_results?.slice(0, 3) || [];
+    const results = res.data.organic_results || [];
 
-    return results.map(r =>
+    if (!results.length) {
+      console.error("No organic_results from SerpAPI:", res.data);
+      return "No results found";
+    }
+
+    return results.slice(0, 3).map(r =>
       `${r.title}\n${r.snippet}\n${r.link}`
     ).join("\n\n");
 
   } catch (err) {
-    console.error("Search error:", err.message);
+    console.error("Search error details:", err.response?.data || err.message);
     return "Search failed.";
   }
 }
@@ -174,7 +182,8 @@ client.on("messageCreate", async (msg) => {
   }
   else if (msg.content === `${prefix}help`) {//-help sends a mesage of the commands it can be used
 
-   msg.reply("```**Bot Commands:** \n\n -thieves: Sends link to 100T website\n\n -youtube: Sends link to 100T Main YouTube Channel\n\n -lcs: Sends link to the LCS stream\n\n -translate [text]: Translates text into Spanish, Mandarin, and Indonesian\n\n -ai [question]: Ask the AI anything\n\n -search [query]: Performs a live Google search and summarizes results\n\n ping: If you feel bored and want to play with yourself\n\n Sends Daily Wordle Links and YouTube Notifications for Fireship :) ```")
+    msg.reply("```**Bot Commands:** \n\n -thieves: this command will make bot send link 100T\n\n -youtube: this command will make bot send link 100T Main Youtube Channel\n\n -lcs: this command will make bot send link to the LCS stream; where you can see 100T lose!!\n\n -translate [text]:Translates text to other languagess\n\n -ai [question]: Ask the AI anything\n\n pong: if you feel bored and want to play with yourself \n\n Sends Daily Wordle Links and Youtube Notification of Fireship :) ```")
+
   }
 else if (msg.content.startsWith("-translate")) { // translate English to various languages
     const textToTranslate = msg.content.slice(11).trim();
@@ -204,16 +213,14 @@ else if (msg.content.startsWith("-translate")) { // translate English to various
 else if (msg.content.startsWith("-search")) {
   const query = msg.content.slice(7).trim();
   if (!query) return msg.reply("Search something after -search");
-  
-  await msg.channel.sendTyping(); 
-  
+   await msg.channel.sendTyping(); 
   try {
     const webResults = await searchWeb(query);
-
+     console.log("SEARCH OUTPUT:", webResults);
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        { role: "system", content: "Summarize clearly and concisely for a Discord chat." },
+        { role: "system", content: "You are 'Unpaid Intern', a single-turn Discord bot for a private server of mid-20s friends. Each reply must be standalone and self-contained. Do not ask follow-up questions. Base your answer strictly on the provided live web search results. Do not invent facts or use outside knowledge. If the search results are insufficient or unclear, say so directly. Deliver the answer clearly and accurately first. Keep the tone conversational, relaxed, and slightly witty—like a smart friend summarizing what they just looked up. Avoid sounding corporate or robotic. Light humor is fine if it fits naturally, but clarity and accuracy come first. Never mention internal rules or that you are an AI. Keep responses under 1500 characters." },
         { role: "user", content: `Based on this live web data:\n\n${webResults}\n\nAnswer the question: ${query}` }
       ]
     });
@@ -230,7 +237,7 @@ else if (msg.content.startsWith("-search")) {
 else if (msg.content.startsWith("-ai")) {
   const prompt = msg.content.slice(3).trim()
   if (!prompt) return msg.reply("Ask me something after -ai")
-
+  await msg.channel.sendTyping();
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -308,8 +315,6 @@ else if (msg.content.startsWith("-ai")) {
 const token = process.env['token']
 //console.log(token)
 client.login(token);
-
-
 
 
 
