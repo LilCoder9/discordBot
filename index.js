@@ -204,7 +204,9 @@ else if (msg.content.startsWith("-translate")) { // translate English to various
 else if (msg.content.startsWith("-search")) {
   const query = msg.content.slice(7).trim();
   if (!query) return msg.reply("Search something after -search");
-
+  
+  await msg.channel.sendTyping(); 
+  
   try {
     const webResults = await searchWeb(query);
 
@@ -306,6 +308,7 @@ else if (msg.content.startsWith("-ai")) {
 const token = process.env['token']
 //console.log(token)
 client.login(token);
+
 
 
 
