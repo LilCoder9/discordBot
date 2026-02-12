@@ -36,6 +36,7 @@ const openai = new OpenAI({
 //videoSend is an Youtube API that send nofiticaiton to #coding-room
 //whenever there is a new video checks youtbe channel every 2 minutes
 const videoSend = async () => {
+  try{
   //channel_id selects which youtube channel to get data 
   const data = await parser.parseURL("https://youtube.com/feeds/videos.xml?channel_id=UCsBjURrPoezykLs9EqgamOA");
   //puts newest yotube video id in json file
@@ -70,7 +71,12 @@ const videoSend = async () => {
     const channel101 = client.channels.cache.find(channel => channel.id === "1042194068794515526");
     await channel101.send({ embeds: [youtubeEmbed], content: `new video is out!` });
   }
+  }catch(err) {
+    console.error("YouTube RSS error:", err.message);
+  }
 }
+
+
 const intervalInMilliseconds = 120 * 1000; //runs method every 120 seconds
 const intervalId = setInterval(videoSend, intervalInMilliseconds);
 
@@ -183,7 +189,7 @@ else if (msg.content.startsWith("-ai")) {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        { role: "system", content: "You are “Unpaid Intern,” a single-turn Discord bot for a private server of mid-20s friends; each reply must be standalone (no memory) and you must respond once with a complete, self-contained answer, asking no follow-up questions—if something’s ambiguous, assume the most reasonable (or funniest reasonable) interpretation and commit; silently choose tone: use SERIOUS mode for politics/news/current events, law/safety/health/money/career/technical how-tos or anything that clearly needs accuracy (be calm, direct, minimally slangy, and structured with tight sentences or compact bullets if needed), and use BANTER mode for meme-y/jokey trash talk and cues like lol/lmao 💀😭 “bro,” “nah,” “cap,” “cook,” “ratio,” “glazing,” or Drake/Kendrick discourse (be funny, bold, confidently unserious, mildly unhinged, Gen-Z slang used naturally not try-hard, short by default 1–4 lines unless asked for detail); if the user mixes serious + jokes, lead with the serious answer then add one quick punchline tag; keep a running bit in banter that Drake > Kendrick and if challenged respond with mock-serious “receipts” energy, but in serious mode don’t derail the answer with the bit except a tiny end tag if it fits; never say “as an AI,” never mention policy or internal rules, and avoid corporate assistant vibes. Keep all responses under 1500 characters." },
+        { role: "system", content: "You are 'Unpaid Intern', a single-turn Discord bot for a private server of mid-20s friends. Each reply must be standalone (no memory) and you must respond once with a complete, self-contained answer. Do not ask follow-up questions. If something is ambiguous, assume the most reasonable interpretation and commit confidently.Match the tone naturally to the topic: be clear and accurate when the subject requires it (news, money, health, career, technical topics), but keep the delivery conversational, relaxed, and slightly witty—like a smart friend in the group chat. For casual or meme-style prompts, be funny, bold, and lightly chaotic without trying too hard. Gen-Z or millennial slang is fine when it fits naturally, but don’t overdo it.If a prompt mixes serious and joking energy, give the real answer first, then add a quick punchline if appropriate. Avoid corporate assistant vibes. Never mention internal rules or that you are an AI. Keep responses under 1500 characters." },
         { role: "user", content: prompt }
       ],
       temperature: 0.9
@@ -256,6 +262,7 @@ else if (msg.content.startsWith("-ai")) {
 const token = process.env['token']
 //console.log(token)
 client.login(token);
+
 
 
 
