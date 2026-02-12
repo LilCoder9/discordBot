@@ -28,6 +28,7 @@ const translate = new Translate({
 });
 
 const OpenAI = require("openai")
+const axios = require("axios");
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -120,8 +121,28 @@ let scheduledMessage = new cron.CronJob('00 10 * * *', () => {
 });
 scheduledMessage.start()
 
+// Fetches top 3 Google search results from SerpAPI and formats them into a readable summary string
+async function searchWeb(query) {
+  try {
+    const res = await axios.get("https://serpapi.com/search", {
+      params: {
+        engine: "google",
+        q: query,
+        api_key: process.env.SERPAPI_KEY
+      }
+    });
 
+    const results = res.data.organic_results?.slice(0, 3) || [];
 
+    return results.map(r =>
+      `${r.title}\n${r.snippet}\n${r.link}`
+    ).join("\n\n");
+
+  } catch (err) {
+    console.error("Search error:", err.message);
+    return "Search failed.";
+  }
+}
 
 
 //when messages are sent
@@ -181,6 +202,30 @@ else if (msg.content.startsWith("-translate")) { // translate English to various
         msg.reply("Translation temporarily unavailable. Please try again later.");
     }
 }
+else if (msg.content.startsWith("-search")) {
+  const query = msg.content.slice(7).trim();
+  if (!query) return msg.reply("Search something after -search");
+
+  try {
+    const webResults = await searchWeb(query);
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: "Summarize clearly and concisely for a Discord chat." },
+        { role: "user", content: `Based on this live web data:\n\n${webResults}\n\nAnswer the question: ${query}` }
+      ]
+    });
+
+    const reply = completion.choices[0].message.content;
+    msg.reply(reply);
+
+  } catch (err) {
+    console.error(err);
+    msg.reply("Search temporarily unavailable.");
+  }
+}
+
 else if (msg.content.startsWith("-ai")) {
   const prompt = msg.content.slice(3).trim()
   if (!prompt) return msg.reply("Ask me something after -ai")
@@ -262,7 +307,6 @@ else if (msg.content.startsWith("-ai")) {
 const token = process.env['token']
 //console.log(token)
 client.login(token);
-
 
 
 
